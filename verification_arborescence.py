@@ -30,7 +30,8 @@ class PathVerification:
                     output_file.write(f"{number}{end_char}")
                 output_file.write("ont un nom invalide.")
             else:
-                output_file.write("le fichier du numéros {self.invalid_numbers[0]} a un nom invalide.")
+                output_file.write(f"le fichier du numéros {self.invalid_numbers[0]} " +
+                                  "a un nom invalide.")
         output_file.close()
 
 
@@ -42,12 +43,14 @@ numbers = int(sys.argv[1])
 teams_path = Path(sys.argv[2])
 penalty_filename = "penalite_globale.txt"
 
-for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(str(x.name).split(' ')[-1])):
+for team_folder in sorted(teams_path.glob("Equipe *"),
+                          key=lambda x: int(str(x.name).split(' ')[-1])):
     verif = PathVerification()
     verif.team_number = team_folder.name.split(" ")[-1]
 
     if Path(team_folder / f"penalite_globale.txt").exists():
-        print(f"Verification pour l'équipe {verif.team_number} déjà faite, on passe à la suivante.")
+        print(f"Verification pour l'équipe {verif.team_number} " +
+              "déjà faite, on passe à la suivante.")
         continue
 
     print("========================================")
@@ -58,7 +61,9 @@ for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(str(x.n
         files_for_number = list(team_folder.glob(f"**/*{number}.pdf"))
 
         if len(files_for_number) == 0:
-            print(f"""Erreur, le fichier correspondant au numéro {number} pour l'équipe {verif.team_number} est introuvable. Veuillez le chercher manuellement.""")
+            print(f"Erreur, le fichier correspondant au numéro {number} " +
+                  f"pour l'équipe {verif.team_number} est introuvable. " +
+                  "Veuillez le chercher manuellement.")
 
             if has_found_invalid_number == 0:
                 open_in_default_application(team_folder)
@@ -82,6 +87,3 @@ for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(str(x.n
     else:
         print("Tous les numéros qui ont été faits sont valides!")
     verif.to_text_file(team_folder / penalty_filename)
-    # Ca va trop ralentir.
-    # if ask_yesno("Voulez vous ouvrir le fichier de verification pour corriger vos erreurs?", False):
-       # open_in_default_application(team_folder / penalty_filename)
