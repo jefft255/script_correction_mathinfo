@@ -3,6 +3,7 @@ import sys
 import os
 import subprocess
 
+from correction import NumberGrading, ask_yesno, ask_grade, open_in_default_application
 
 class PathVerification:
     def __init__(self):
@@ -11,64 +12,76 @@ class PathVerification:
         self.penalty = 0
 
     def to_text_file(self, path: Path):
+        assert(self.team_number != -1)
         output_file = open(path, 'w')
         if len(self.invalid_numbers) == 0:
             output_file.write("Format des fichiers valide, pas de pénalité.")
         else:
             output_file.write(f"{self.penalty} points de pénalité car ")
             if len(self.invalid_numbers) > 1:
-                output_file.write("les fichiers des numéros")
+                output_file.write("les fichiers des numéros ")
                 for i, number in enumerate(self.invalid_numbers):
                     if i == len(self.invalid_numbers) - 1:
                         end_char = " "
                     elif i == len(self.invalid_numbers) - 2:
-                        end_char = "et "
+                        end_char = " et "
                     else:
                         end_char = ", "
                     output_file.write(f"{number}{end_char}")
                 output_file.write("ont un nom invalide.")
             else:
                 output_file.write("le fichier du numéros {self.invalid_numbers[0]} a un nom invalide.")
+        output_file.close()
 
 
 
-if sys.argc != 3:
+if len(sys.argv) != 3:
     print("Utilisation: python3 verification_arborescence.py nombre_de_numero dossier_equipes")
 
-numbers = sys.argv[1]
+numbers = int(sys.argv[1])
 teams_path = Path(sys.argv[2])
+penalty_filename = "penalite_globale.txt"
 
-for team_folder in sorted(teams_path.glob("Equipe *")):
-    team_number = team_folder.name.split(" ")[-1]
-    correction = NumberGrading()
-    correction.team_number = team_number
-    correction.number = number
+for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(str(x.name).split(' ')[-1])):
+    verif = PathVerification()
+    verif.team_number = team_folder.name.split(" ")[-1]
 
     if Path(team_folder / f"penalite_globale.txt").exists():
-        print(f"Verification pour l'équipe {team_number} déjà faite, on passe à la suivante.")
+        print(f"Verification pour l'équipe {verif.team_number} déjà faite, on passe à la suivante.")
         continue
 
     print("========================================")
-    print(f"--- Verification de l'équipe {team_number} ---")
+    print(f"--- Verification de l'équipe {verif.team_number} ---")
 
+    has_found_invalid_number = False
     for number in range(1, numbers + 1):
         files_for_number = list(team_folder.glob(f"**/*{number}.pdf"))
-        if len(files_for_number) > 1:  # Grade the most recent homework
-            files_for_number.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
         if len(files_for_number) == 0:
-            print(f"""Erreur, le fichier correspondant au numéro {number} pour l'équipe {team_number} est introuvable. Veuillez le chercher manuellement.""")
+            print(f"""Erreur, le fichier correspondant au numéro {number} pour l'équipe {verif.team_number} est introuvable. Veuillez le chercher manuellement.""")
+
+            if has_found_invalid_number == 0:
+                open_in_default_application(team_folder)
+                has_found_invalid_number = True
+
             if ask_yesno("Est-ce que le fichier à été trouvé?", False):
+                verif.invalid_numbers.append(number)
             else:
                 print("Le numéro n'a pas été fait, c'est donc 0.")
+                correction = NumberGrading()
+                correction.team_number = verif.team_number
+                correction.number = number
                 correction.grade = 0
                 correction.other_comment = "Numéro pas fait."
                 correction.to_text_file(team_folder / f"correction{number}.txt")
                 continue
-        else:
-            open_in_default_application(files_for_number[0])
 
-    correction.file_format_penalty = ask_grade("Quelle pénalité donner à l'équipe? Ne pas mettre de -.", 0)  # TODO quelle penalite donner?
-    correction.to_text_file(team_folder / f"correction{number}.txt")
-    if ask_yesno("Voulez vous ouvrir le fichier de correction pour corriger vos erreurs?", False):
-        open_in_default_application(team_folder / f"correction{number}.txt")
+    if len(verif.invalid_numbers) > 0:
+        print(f"Numéros invalides: {verif.invalid_numbers}")
+        verif.penalty = ask_grade("Quelle pénalité donner à l'équipe? Ne pas mettre de -.")
+    else:
+        print("Tous les numéros qui ont été faits sont valides!")
+    verif.to_text_file(team_folder / penalty_filename)
+    # Ca va trop ralentir.
+    # if ask_yesno("Voulez vous ouvrir le fichier de verification pour corriger vos erreurs?", False):
+       # open_in_default_application(team_folder / penalty_filename)
