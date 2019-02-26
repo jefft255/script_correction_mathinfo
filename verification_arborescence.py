@@ -56,29 +56,38 @@ for team_folder in sorted(teams_path.glob("Equipe *"),
     print("========================================")
     print(f"--- Verification de l'équipe {verif.team_number} ---")
 
-    has_found_invalid_number = False
+    # First pass, find problems
     for number in range(1, numbers + 1):
-        files_for_number = list(team_folder.glob(f"**/*{number}.pdf"))
+        files_for_number = list(team_folder.glob(f"**/*{number}.pdf")) + \
+                           list(team_folder.glob(f"**/*{number}.PDF"))
 
         if len(files_for_number) == 0:
             print(f"Erreur, le fichier correspondant au numéro {number} " +
                   f"pour l'équipe {verif.team_number} est introuvable. " +
                   "Veuillez le chercher manuellement.")
 
-            if has_found_invalid_number == 0:
-                open_in_default_application(team_folder)
-                has_found_invalid_number = True
+            verif.invalid_numbers.append(number)
 
-            if ask_yesno("Est-ce que le fichier à été trouvé?", False):
-                verif.invalid_numbers.append(number)
-            else:
-                print("Le numéro n'a pas été fait, c'est donc 0.")
+    if len(verif.invalid_numbers) > 0:
+        open_in_default_application(team_folder)
+
+        if not ask_yesno("Avez-vous corriger les anomalies? Sinon, on saute à l'autre équipe.", False):
+            continue
+
+        # Second pass, find actual missing numbers
+        for number in range(1, numbers + 1):
+            files_for_number = list(team_folder.glob(f"**/*{number}.pdf")) + \
+                               list(team_folder.glob(f"**/*{number}.PDF"))
+
+            if len(files_for_number) == 0:
+                print(f"Le numéro {number} n'a pas été fait, c'est donc 0.")
                 correction = NumberGrading()
                 correction.team_number = verif.team_number
                 correction.number = number
                 correction.grade = 0
                 correction.other_comment = "Numéro pas fait."
                 correction.to_text_file(team_folder / f"correction{number}.txt")
+                verif.invalid_numbers.remove(number)
                 continue
 
     if len(verif.invalid_numbers) > 0:
@@ -87,3 +96,5 @@ for team_folder in sorted(teams_path.glob("Equipe *"),
     else:
         print("Tous les numéros qui ont été faits sont valides!")
     verif.to_text_file(team_folder / penalty_filename)
+    if ask_yesno("Voulez vous ouvrir le fichier de verification?", False):
+        open_in_default_application(team_folder / penalty_filename)

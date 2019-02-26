@@ -78,8 +78,10 @@ if __name__ == "__main__":
         print(f"--- Correction de l'équipe {team_number} ---")
 
         files_for_number = list(team_folder.glob(f"**/*{number}.pdf"))
+        files_for_number = list(filter(lambda x: "__MACOSX" not in  str(x), files_for_number))
         if len(files_for_number) > 1:  # Grade the most recent homework
             print("Plusieurs remise, la plus récente va être ouverte.")
+            print(list(map(lambda x: x.stat().st_mtime, files_for_number)))
             files_for_number.sort(key=lambda x: x.stat().st_mtime, reverse=True)
 
         if len(files_for_number) == 0:
