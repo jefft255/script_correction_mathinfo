@@ -51,13 +51,8 @@ def ask_grade(message: str, default=""):
 
 
 def open_in_default_application(path: Path):
-    os.system('WINEARCH=win32 WINEPREFIX=~/.wine32 wine .wine32/drive_c/Program\ Files/Adobe/Reader\ 11.0/Reader/AcroRd32.exe ' + str(path))
-#    if sys.platform.startswith('darwin'):
-#        subprocess.call(('open', path))
-#    elif sys.platform.startswith('linux'):
-#        subprocess.call(('xdg-open', path))
-#    elif sys.platform.startswith('win32'):
-#        os.startfile(path)
+    wine_command = 'WINEARCH=win32 WINEPREFIX=~/.wine32 wine .wine32/drive_c/Program\ Files/Adobe/Reader\ 11.0/Reader/AcroRd32.exe'
+    os.system(wine_command + ' ' + str(path))
 
 if __name__ == "__main__":
     number = sys.argv[1]
