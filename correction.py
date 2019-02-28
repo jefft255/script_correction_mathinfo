@@ -9,6 +9,7 @@ class NumberGrading:
         self.number = -1
         self.grade = -1
         self.typo_penalty = 0
+        self.readability_penalty = 0
         self.other_comment = ""
 
     def to_text_file(self, path: Path):
@@ -16,6 +17,7 @@ class NumberGrading:
         output_file.write(f"--- Équipe {self.team_number}, numéro {self.number} ---\n")
         output_file.write(f"Note: {self.grade}\n")
         output_file.write(f"Pénalité fautes de français: {self.typo_penalty}\n")
+        output_file.write(f"Pénalité lisibilité: {self.readability_penalty}\n")
         output_file.write(f"Autres commentaires: {self.other_comment}")
         output_file.close()
 
@@ -36,7 +38,7 @@ def ask_yesno(message: str, default: bool):
 
 def ask_grade(message: str, default=""):
     while True:
-        answer = input(f"{message}: {f'(défaut: {default})' if default != '' else ''}")
+        answer = input(f"{message} {f'(défaut: {default})' if default != '' else ''}: ")
         if answer == "":
             return default
         else:
@@ -61,6 +63,7 @@ def open_in_default_application(path: Path):
 if __name__ == "__main__":
     number = sys.argv[1]
     teams_path = Path(sys.argv[2])
+    print(teams_path)
 
     for team_folder in sorted(teams_path.glob("Equipe *"),
                               key=lambda x: int(str(x.name).split(' ')[-1])):
@@ -102,6 +105,9 @@ if __name__ == "__main__":
         correction.typo_penalty = ask_grade("Quelle est la pénalité pour le " +
                                             "français? Ne pas mettre de -.",
                                             default=0)
+        correction.readability_penalty = ask_grade("Quelle est la pénalité pour la " +
+                                                   "lisibilité? Ne pas mettre de -.",
+                                                   default=0)
         correction.other_comment = input("Écrire tout autre commentaire ici: ")
         correction.to_text_file(team_folder / f"correction{number}.txt")
         if ask_yesno("Voulez vous ouvrir le fichier de correction pour " +
