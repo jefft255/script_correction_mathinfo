@@ -9,13 +9,16 @@ class NumberGrading:
         self.number = -1
         self.grade = -1
         self.typo_penalty = 0
+        self.readability_penalty = 0
+        self.other_penalty = 0
         self.other_comment = ""
 
     def to_text_file(self, path: Path):
         output_file = open(path, 'w')
         output_file.write(f"--- Équipe {self.team_number}, numéro {self.number} ---\n")
         output_file.write(f"Note: {self.grade}\n")
-        output_file.write(f"Pénalité fautes de français: {self.typo_penalty}\n")
+        output_file.write(f"Nombre de fautes de français: {self.typo_penalty}\n")
+        output_file.write(f"Pénalité lisibilité: {self.readability_penalty}\n")
         output_file.write(f"Autres commentaires: {self.other_comment}")
         output_file.close()
 
@@ -36,7 +39,7 @@ def ask_yesno(message: str, default: bool):
 
 def ask_grade(message: str, default=""):
     while True:
-        answer = input(f"{message}: {f'(défaut: {default})' if default != '' else ''}")
+        answer = input(f"{message} {f'(défaut: {default})' if default != '' else ''}: ")
         if answer == "":
             return default
         else:
@@ -78,6 +81,12 @@ def correction_choices(default):
             if answer == "f":
                 correction.typo_penalty = ask_grade("Combien de fautes de français?",
                                                     default=0)
+            if answer == "l":
+                correction.readability_penalty = ask_grade("Quelle est la pénalité pour la " +
+                                                        "lisibilité? Ne pas mettre de -.",
+                                                        default=0)
+            if answer == "p":
+
         correction.other_comment = input("Écrire tout autre commentaire ici: ")
 
 
@@ -130,6 +139,9 @@ if __name__ == "__main__":
         correction.typo_penalty = ask_grade("Quelle est la pénalité pour le " +
                                             "français? Ne pas mettre de -.",
                                             default=0)
+        correction.readability_penalty = ask_grade("Quelle est la pénalité pour la " +
+                                                   "lisibilité? Ne pas mettre de -.",
+                                                   default=0)
         correction.other_comment = input("Écrire tout autre commentaire ici: ")
         correction.to_text_file(team_folder / f"correction{number}.txt")
         if ask_yesno("Voulez vous ouvrir le fichier de correction pour " +
