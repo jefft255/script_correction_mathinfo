@@ -58,9 +58,37 @@ def open_in_default_application(path: Path):
     elif sys.platform.startswith('win32'):
         os.startfile(path)
 
+
+def correction_choices(default):
+    while True:
+        print(f"Entrez la note (défaut: {default}) ou")
+        print("autres choix: F -> entrer les fautes de français")
+        print("              L -> pénalité de lisibilité")
+        print("              P -> autre pénalité")
+        print("              C -> autre commentaire:")
+        answer = input()
+        if answer == "":
+            answer = default
+        try:
+            grade = int(answer)
+            correction.grade = grade
+
+        except ValueError:
+            answer = answer.strip().lower()
+            if answer == "f":
+                correction.typo_penalty = ask_grade("Combien de fautes de français?",
+                                                    default=0)
+        correction.other_comment = input("Écrire tout autre commentaire ici: ")
+
+
 if __name__ == "__main__":
+    if len(sys.argv[1]) != 4:
+        print("Mauvais nombre d'argument. Utilisation: python correction.py numéro note_maximale dossier_équipes")
+
+
     number = sys.argv[1]
-    teams_path = Path(sys.argv[2])
+    max_grade = sys.argv[2]
+    teams_path = Path(sys.argv[3])
 
     for team_folder in sorted(teams_path.glob("Equipe *"),
                               key=lambda x: int(str(x.name).split(' ')[-1])):
