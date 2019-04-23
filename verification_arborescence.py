@@ -71,7 +71,7 @@ for team_folder in sorted(teams_path.glob("Equipe *"),
     if len(verif.invalid_numbers) > 0:
         open_in_default_application(team_folder)
 
-        if not ask_yesno("Avez-vous corriger les anomalies? Sinon, on saute à l'autre équipe.", False):
+        if not ask_yesno("Anomalies corrigées? O: Elles ont été corrigées, les numéros non-faits vont avoir 0; N: Non, je veux sauter cette équipe", True):
             continue
 
         # Second pass, find actual missing numbers
