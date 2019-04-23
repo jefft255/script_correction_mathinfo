@@ -96,5 +96,3 @@ for team_folder in sorted(teams_path.glob("Equipe *"),
     else:
         print("Tous les numéros qui ont été faits sont valides!")
     verif.to_text_file(team_folder / penalty_filename)
-    if ask_yesno("Voulez vous ouvrir le fichier de verification?", False):
-        open_in_default_application(team_folder / penalty_filename)
