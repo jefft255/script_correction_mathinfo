@@ -10,14 +10,17 @@ class NumberGrading:
         self.grade = -1
         self.typo_penalty = 0
         self.readability_penalty = 0
+        self.other_penalty = 0
         self.other_comment = ""
+
 
     def to_text_file(self, path: Path):
         output_file = open(path, 'w')
         output_file.write(f"--- Équipe {self.team_number}, numéro {self.number} ---\n")
         output_file.write(f"Note: {self.grade}\n")
-        output_file.write(f"Pénalité fautes de français: {self.typo_penalty}\n")
+        output_file.write(f"Nombre de fautes de français: {self.typo_penalty}\n")
         output_file.write(f"Pénalité lisibilité: {self.readability_penalty}\n")
+        output_file.write(f"Autre pénalité: {self.other_penalty}\n")
         output_file.write(f"Autres commentaires: {self.other_comment}")
         output_file.close()
 
@@ -56,10 +59,52 @@ def open_in_default_application(path: Path):
     wine_command = 'WINEARCH=win32 WINEPREFIX=~/.wine32 wine .wine32/drive_c/Program\ Files/Adobe/Reader\ 11.0/Reader/AcroRd32.exe'
     os.system(wine_command + ' ' + str(path))
 
+
+def correction_choices(correction, number, default):
+    while True:
+        print(f"Entrez la note (défaut: {default}) ou")
+        print("autres choix: F -> entrer les fautes de français")
+        print("              L -> pénalité de lisibilité")
+        print("              P -> autre pénalité")
+        print("              C -> autre commentaire")
+        print("              X -> sauter cette équipe:")
+        answer = input()
+        if answer == "":
+            answer = default
+        try:
+            grade = int(answer)
+            correction.grade = grade
+            break
+        except ValueError:
+            answer = answer.strip().lower()
+            if answer == "f":
+                correction.typo_penalty = ask_grade("Combien de fautes de français?",
+                                                    default=0)
+            elif answer == "l":
+                correction.readability_penalty = ask_grade("Quelle est la pénalité pour la " +
+                                                           "lisibilité? Ne pas mettre de -.",
+                                                           default=0)
+            elif answer == "p":
+                correction.other_penalty = ask_grade("Autre pénalité. Ne pas mettre de -.",
+                                                     default=0)
+            elif answer == "c":
+                correction.other_comment = input("Écrire tout autre commentaire ici: ")
+            elif answer == "x":
+                print("On saute l'équipe.")
+                return  # return skips the last saving line. Hacky but works
+            else:
+                print("Choix invalide.")
+    correction.to_text_file(team_folder / f"correction{number}.txt")
+
+
+
 if __name__ == "__main__":
+    if len(sys.argv[1]) != 4:
+        print("Mauvais nombre d'argument. Utilisation: python correction.py numéro note_maximale dossier_équipes")
+
     number = sys.argv[1]
-    teams_path = Path(sys.argv[2])
-    print(teams_path)
+    max_grade = sys.argv[2]
+    teams_path = Path(sys.argv[3])
 
     for team_folder in sorted(teams_path.glob("Equipe *"),
                               key=lambda x: int(str(x.name).split(' ')[-1])):
@@ -69,7 +114,7 @@ if __name__ == "__main__":
         correction.number = number
 
         if Path(team_folder / f"correction{number}.txt").exists():
-            print(f"Correction pour l'équipe {team_number} déjà faite," +
+            print(f"Correction pour l'équipe {team_number} déjà faite, " +
                   "on passe à la suivante.")
             continue
 
@@ -92,20 +137,4 @@ if __name__ == "__main__":
         else:
             open_in_default_application(files_for_number[0])
 
-        grade = ask_grade("Après correction, quelle est la note?")
-        if grade == "":
-            print("On saute la correction de ce numéro.")
-            continue
-
-        correction.grade = grade
-        correction.typo_penalty = ask_grade("Quelle est la pénalité pour le " +
-                                            "français? Ne pas mettre de -.",
-                                            default=0)
-        correction.readability_penalty = ask_grade("Quelle est la pénalité pour la " +
-                                                   "lisibilité? Ne pas mettre de -.",
-                                                   default=0)
-        correction.other_comment = input("Écrire tout autre commentaire ici: ")
-        correction.to_text_file(team_folder / f"correction{number}.txt")
-        if ask_yesno("Voulez vous ouvrir le fichier de correction pour " +
-                     "corriger vos erreurs?", False):
-            open_in_default_application(team_folder / f"correction{number}.txt")
+        correction_choices(correction, number, max_grade)
