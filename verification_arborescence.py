@@ -57,10 +57,9 @@ def is_illformed(exercise_number_to_verify, folder):
             list(folder.glob(f"**/*{exercise_number_to_verify}*.PDF")) + \
             list(folder.glob(f"**/*{exercise_number_to_verify}*_retard.pdf")) + \
             list(folder.glob(f"**/*{exercise_number_to_verify}*_retard.PDF"))
-    # <.*?> is a non greedy repetition, i.e., it replaces *.
     regex = r".*[a-zA-Z]\.(pdf|PDF)"
     regex_retard = r".*[a-zA-Z]_retard\.(pdf|PDF)"
-    files = list(filter(lambda f: re.match(regex, f) or re.match(regex_retard, f), files))
+    files = list(filter(lambda f: re.match(regex, str(f)) or re.match(regex_retard, str(f)), files))
     return len(files) > 0
 
 
