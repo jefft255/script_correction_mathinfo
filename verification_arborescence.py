@@ -58,10 +58,15 @@ def is_illformed(exercise_number_to_verify, folder):
             list(folder.glob(f"**/*{exercise_number_to_verify}*_retard.pdf")) + \
             list(folder.glob(f"**/*{exercise_number_to_verify}*_retard.PDF"))
     # <.*?> is a non greedy repetition, i.e., it replaces *.
-    regex = rf"<.*?>/<.*?>{exercise_number_to_verify}[\s_a-zA-Z0-9]*\.(pdf|PDF)"
-    regex_retard = rf"<.*?>/<.*?>{exercise_number_to_verify}[\s_a-zA-Z0-9]*\.(pdf|PDF)"
+    regex = r".*[a-zA-Z]\.(pdf|PDF)"
+    regex_retard = r".*[a-zA-Z]_retard\.(pdf|PDF)"
     files = list(filter(lambda f: re.match(regex, f) or re.match(regex_retard, f), files))
     return len(files) > 0
+
+
+def is_containing_enough_answers(number_of_exercises_in_tp, folder):
+    files = list(folder.glob("**/*.pdf")) + list(folder.glob("**/*.PDF"))
+    return len(files) >= number_of_exercises_in_tp
 
 
 def find_problematic_exercises(folder):
@@ -73,7 +78,24 @@ def find_problematic_exercises(folder):
             print(f"AVERTISSEMENT: le fichier correspondant au numéro {exercise_number_to_verify} " +
                   f"pour l'équipe {team_folder_to_verify.team_number} est mal formé.")
             invalid_numbers.append(exercise_number_to_verify)
+        elif not is_containing_enough_answers(number_of_exercises_in_TP, folder):
+            mark_zero_for_an_exercise_not_done(exercise_number_to_verify)
+        else:
+            print(f"AVERTISSEMENT: le fichier correspondant au numéro {exercise_number_to_verify} " +
+                  f"pour l'équipe {team_folder_to_verify.team_number} échappe à nos règles. "
+                  f"Est-il possible d'en créer une nouvelle pour éviter cette situation?")
+            invalid_numbers.append(exercise_number_to_verify)
     return invalid_numbers
+
+
+def mark_zero_for_an_exercise_not_done(number_of_the_exercise_not_done):
+    print(f"Le numéro {number_of_the_exercise_not_done} n'a pas été fait, c'est donc 0.")
+    mark_of_the_exercise = NumberGrading()
+    mark_of_the_exercise.team_number = team_folder_to_verify.team_number
+    mark_of_the_exercise.number = number_of_the_exercise_not_done
+    mark_of_the_exercise.grade = 0
+    mark_of_the_exercise.other_comment = "Numéro pas fait."
+    mark_of_the_exercise.to_text_file(team_folder / f"correction{number_of_the_exercise_not_done}.txt")
 
 
 for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(str(x.name).split(' ')[-1])):
@@ -97,22 +119,6 @@ for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(str(x.n
         if not ask_yesno("Anomalies corrigées? O: Elles ont été corrigées, les numéros non-faits vont avoir 0; "
                          "N: Non, je veux sauter cette équipe", True):
             continue
-
-        # Second pass, find actual missing numbers
-        for number in range(1, number_of_exercises_in_TP + 1):
-            files_for_number = list(team_folder.glob(f"**/*{number}.pdf")) + \
-                               list(team_folder.glob(f"**/*{number}.PDF"))
-
-            if len(files_for_number) == 0:
-                print(f"Le numéro {number} n'a pas été fait, c'est donc 0.")
-                correction = NumberGrading()
-                correction.team_number = team_folder_to_verify.team_number
-                correction.number = number
-                correction.grade = 0
-                correction.other_comment = "Numéro pas fait."
-                correction.to_text_file(team_folder / f"correction{number}.txt")
-                team_folder_to_verify.invalid_numbers.remove(number)
-                continue
 
     if len(team_folder_to_verify.invalid_numbers) > 0:
         print(f"Numéros invalides: {team_folder_to_verify.invalid_numbers}")
