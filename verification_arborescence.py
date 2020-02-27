@@ -119,6 +119,15 @@ for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(str(x.n
                          "N: Non, je veux sauter cette équipe", True):
             continue
 
+    # Second pass, find actual missing numbers
+    for number in range(1, number_of_exercises_in_TP + 1):
+        files_for_number = list(team_folder.glob(f"**/*{number}.pdf")) + \
+                           list(team_folder.glob(f"**/*{number}.PDF")) + \
+                           list(team_folder.glob(f"**/*{number}_retard.pdf")) + \
+                           list(team_folder.glob(f"**/*{number}_retard.PDF"))
+        if len(files_for_number) == 0:
+            mark_zero_for_an_exercise_not_done(number)
+
     if len(team_folder_to_verify.invalid_numbers) > 0:
         print(f"Numéros invalides: {team_folder_to_verify.invalid_numbers}")
         team_folder_to_verify.penalty = ask_grade("Quelle pénalité donner à l'équipe? Ne pas mettre de -.")
