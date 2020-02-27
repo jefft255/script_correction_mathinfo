@@ -1,7 +1,7 @@
 from pathlib import Path
 import sys
 import os
-import subprocess
+
 
 class NumberGrading:
     def __init__(self):
@@ -12,7 +12,6 @@ class NumberGrading:
         self.readability_penalty = 0
         self.other_penalty = 0
         self.other_comment = ""
-
 
     def to_text_file(self, path: Path):
         output_file = open(path, 'w')
@@ -97,7 +96,6 @@ def correction_choices(correction, number, default):
     correction.to_text_file(team_folder / f"correction{number}.txt")
 
 
-
 if __name__ == "__main__":
     if len(sys.argv[1]) != 3:
         print("Mauvais nombre d'argument. Utilisation: python correction.py numéro note_maximale dossier_équipes")
@@ -121,8 +119,11 @@ if __name__ == "__main__":
         print("========================================")
         print(f"--- Correction de l'équipe {team_number} ---")
 
-        files_for_number = list(team_folder.glob(f"**/*{number}.pdf"))
-        files_for_number = list(filter(lambda x: "__MACOSX" not in  str(x), files_for_number))
+        files_for_number = list(team_folder.glob(f"**/*{number}.pdf")) + \
+            list(team_folder.glob(f"**/*{number}.PDF")) + \
+            list(team_folder.glob(f"**/*{number}_retard.pdf")) + \
+            list(team_folder.glob(f"**/*{number}_retard.PDF"))
+        files_for_number = list(filter(lambda x: "__MACOSX" not in str(x), files_for_number))
         if len(files_for_number) > 1:  # Grade the most recent homework
             print("Plusieurs remise, la plus récente va être ouverte.")
             print(list(map(lambda x: x.stat().st_mtime, files_for_number)))
