@@ -1,7 +1,8 @@
 from pathlib import Path
-import sys
 import os
 import subprocess
+import sys
+
 
 class NumberGrading:
     def __init__(self):
@@ -13,9 +14,8 @@ class NumberGrading:
         self.other_penalty = 0
         self.other_comment = ""
 
-
     def to_text_file(self, path: Path):
-        output_file = open(path, 'w')
+        output_file = open(str(path), 'w')
         output_file.write(f"--- Équipe {self.team_number}, numéro {self.number} ---\n")
         output_file.write(f"Note: {self.grade}\n")
         output_file.write(f"Nombre de fautes de français: {self.typo_penalty}\n")
@@ -83,14 +83,14 @@ def correction_choices(correction, number, default):
             answer = answer.strip().lower()
             if answer == "f":
                 correction.typo_penalty = ask_grade("Combien de fautes de français?",
-                                                    default=0)
+                                                    default="0")
             elif answer == "l":
                 correction.readability_penalty = ask_grade("Quelle est la pénalité pour la " +
                                                            "lisibilité? Ne pas mettre de -.",
-                                                           default=0)
+                                                           default="0")
             elif answer == "p":
                 correction.other_penalty = ask_grade("Autre pénalité. Ne pas mettre de -.",
-                                                     default=0)
+                                                     default="0")
             elif answer == "c":
                 correction.other_comment = input("Écrire tout autre commentaire ici: ")
             elif answer == "x":
@@ -99,7 +99,6 @@ def correction_choices(correction, number, default):
             else:
                 print("Choix invalide.")
     correction.to_text_file(team_folder / f"correction{number}.txt")
-
 
 
 if __name__ == "__main__":
@@ -125,8 +124,11 @@ if __name__ == "__main__":
         print("========================================")
         print(f"--- Correction de l'équipe {team_number} ---")
 
-        files_for_number = list(team_folder.glob(f"**/*{number}.pdf"))
-        files_for_number = list(filter(lambda x: "__MACOSX" not in  str(x), files_for_number))
+        files_for_number = list(team_folder.glob(f"**/*{number}.pdf")) + \
+            list(team_folder.glob(f"**/*{number}.PDF")) + \
+            list(team_folder.glob(f"**/*{number}_retard.pdf")) + \
+            list(team_folder.glob(f"**/*{number}_retard.PDF"))
+        files_for_number = list(filter(lambda x: "__MACOSX" not in str(x), files_for_number))
         if len(files_for_number) > 1:  # Grade the most recent homework
             print("Plusieurs remise, la plus récente va être ouverte.")
             print(list(map(lambda x: x.stat().st_mtime, files_for_number)))
