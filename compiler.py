@@ -164,7 +164,7 @@ def write_a_result_in_excel_grid(active_sheet_r_mode, active_sheet_w_mode, resul
 
 
 if __name__ == '__main__':
-    if len(sys.argv[1]) != 4:
+    if len(sys.argv) != 4:
         print("Utilisation: python compiler.py nombre_exercices dossier_équipes grille_des_résultats")
     number_of_exercises = int(sys.argv[1])
     team_path = Path(sys.argv[2])
