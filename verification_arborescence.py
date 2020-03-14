@@ -88,9 +88,13 @@ def mark_zero_for_an_exercise_not_done(number_of_the_exercise_not_done):
     mark_of_the_exercise.to_text_file(team_folder / f"correction{number_of_the_exercise_not_done}.txt")
 
 
-if __name__ == '__main__':
+def assert_number_of_arguments():
     if len(sys.argv) != 4:
-        print("Utilisation: python3 verification_arborescence.py nombre_de_numero dossier_equipes")
+        raise Exception("Utilisation: python3 verification_arborescence.py nombre_de_numero dossier_equipes")
+
+
+if __name__ == '__main__':
+    assert_number_of_arguments()
 
     number_of_exercises_in_TP = int(sys.argv[1])
     teams_path = Path(sys.argv[2])

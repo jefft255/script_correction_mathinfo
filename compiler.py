@@ -163,9 +163,13 @@ def write_a_result_in_excel_grid(active_sheet_r_mode, active_sheet_w_mode, resul
         row_index += 1
 
 
-if __name__ == '__main__':
+def assert_number_of_arguments():
     if len(sys.argv) != 4:
-        print("Utilisation: python compiler.py nombre_exercices dossier_équipes grille_des_résultats")
+        raise Exception("Utilisation: python compiler.py nombre_exercices dossier_équipes grille_des_résultats")
+
+
+if __name__ == '__main__':
+    assert_number_of_arguments()
     number_of_exercises = int(sys.argv[1])
     team_path = Path(sys.argv[2])
     grade_sheet_path = Path(sys.argv[3])

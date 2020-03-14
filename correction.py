@@ -101,9 +101,13 @@ def correction_choices(correction, number, default):
     correction.to_text_file(team_folder / f"correction{number}.txt")
 
 
-if __name__ == "__main__":
+def assert_number_of_arguments():
     if len(sys.argv) != 4:
-        print("Utilisation: python correction.py numéro note_maximale dossier_équipes")
+        raise Exception("Utilisation: python correction.py numéro note_maximale dossier_équipes")
+
+
+if __name__ == "__main__":
+    assert_number_of_arguments()
 
     number = sys.argv[1]
     max_grade = sys.argv[2]
