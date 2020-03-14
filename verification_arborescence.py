@@ -31,8 +31,7 @@ class PathVerification:
                     output_file.write(f"{exercise_number}{end_char}")
                 output_file.write("ont un nom invalide.")
             else:
-                output_file.write(f"le fichier du numéros {self.invalid_numbers[0]} " +
-                                  "a un nom invalide.")
+                output_file.write(f"le fichier du numéro {self.invalid_numbers[0]} a un nom invalide.")
             output_file.write(" " + self.comment)
         output_file.close()
 
@@ -67,15 +66,13 @@ def find_problematic_exercises(folder):
         if is_present(exercise_number_to_verify, folder):
             continue
         elif is_illformed(exercise_number_to_verify, folder):
-            print(f"AVERTISSEMENT: le fichier correspondant au numéro {exercise_number_to_verify} " +
-                  f"pour l'équipe {team_folder_to_verify.team_number} est mal formé.")
+            print(f"AVERTISSEMENT: le fichier correspondant au numéro {exercise_number_to_verify} est mal formé.")
             invalid_numbers.append(exercise_number_to_verify)
         elif not is_containing_enough_answers(number_of_exercises_in_TP, folder):
             mark_zero_for_an_exercise_not_done(exercise_number_to_verify)
         else:
             print(f"AVERTISSEMENT: le fichier correspondant au numéro {exercise_number_to_verify} " +
-                  f"pour l'équipe {team_folder_to_verify.team_number} échappe à nos règles. "
-                  f"Est-il possible d'en créer une nouvelle pour éviter cette situation?")
+                  "échappe à nos règles. Est-il possible d'en créer une nouvelle pour éviter cette situation?")
             invalid_numbers.append(exercise_number_to_verify)
     return invalid_numbers
 
@@ -95,6 +92,15 @@ def assert_number_of_arguments():
         raise Exception("Utilisation: python3 verification_arborescence.py nombre_de_numero dossier_equipes")
 
 
+def is_team_skipped():
+    answer = input("Anomalies corrigées?\nO: Oui, elles sont corrigées. Les numéros non-faits vont avoir 0."
+                   "\nX: Sauter cette équipe.\nVotre choix (défaut: oui): ")
+    skipped = True
+    if answer.strip().lower() == "x":
+        skipped = False
+    return skipped
+
+
 if __name__ == '__main__':
     assert_number_of_arguments()
 
@@ -106,13 +112,12 @@ if __name__ == '__main__':
         team_folder_to_verify = PathVerification()
         team_folder_to_verify.team_number = team_folder.name.split(" ")[-1]
 
-        if Path(team_folder / f"penalite_globale.txt").exists():
-            print(f"Verification pour l'équipe {team_folder_to_verify.team_number} " +
-                  "déjà faite, on passe à la suivante.")
+        if Path(team_folder / f"{penalty_filename}").exists():
+            print(f"Vérification pour l'équipe {team_folder_to_verify.team_number} déjà faite, on passe à la suivante.")
             continue
 
         print("========================================")
-        print(f"--- Verification de l'équipe {team_folder_to_verify.team_number} ---")
+        print(f"--- Vérification de l'équipe {team_folder_to_verify.team_number} ---")
 
         # First pass, find problems
         team_folder_to_verify.invalid_numbers.extend(find_problematic_exercises(team_folder))
@@ -120,8 +125,7 @@ if __name__ == '__main__':
         if len(team_folder_to_verify.invalid_numbers) > 0:
             open_in_default_application(team_folder)
 
-            if not ask_yesno("Anomalies corrigées? O: Elles ont été corrigées, les numéros non-faits vont avoir 0; "
-                             "N: Non, je veux sauter cette équipe", True):
+            if is_team_skipped():
                 continue
 
         # Second pass, find actual missing numbers
