@@ -89,7 +89,7 @@ def mark_zero_for_an_exercise_not_done(number_of_the_exercise_not_done):
 
 
 def assert_number_of_arguments():
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 3:
         raise Exception("Utilisation: python3 verification_arborescence.py nombre_de_numero dossier_equipes")
 
 
@@ -128,7 +128,8 @@ if __name__ == '__main__':
                                list(team_folder.glob(f"**/*{number}.PDF")) + \
                                list(team_folder.glob(f"**/*{number}_retard.pdf")) + \
                                list(team_folder.glob(f"**/*{number}_retard.PDF"))
-            if len(files_for_number) == 0:
+            correction_files_for_number = list(team_folder.glob(f"**/correction{number}.txt"))
+            if len(files_for_number) + len(correction_files_for_number) == 0:
                 mark_zero_for_an_exercise_not_done(number)
 
         if len(team_folder_to_verify.invalid_numbers) > 0:

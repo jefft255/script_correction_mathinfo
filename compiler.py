@@ -23,9 +23,7 @@ class Result:
         return penalty if penalty <= max_penalty else max_penalty
 
     def get_comment(self):
-        comment = ""
-        if self.comment != "":
-            comment += self.comment
+        comment = self.comment
         if self.global_penalty > 0:
             comment += "Pénalité globale: -" + str(self.global_penalty) + ".\n"
         if self.nb_of_french_mistakes > 0:
