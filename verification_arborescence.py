@@ -10,6 +10,7 @@ class PathVerification:
         self.team_number = -1
         self.invalid_numbers = []
         self.penalty = 0
+        self.comment = ""
 
     def to_text_file(self, path):
         assert(self.team_number != -1)
@@ -32,6 +33,7 @@ class PathVerification:
             else:
                 output_file.write(f"le fichier du numéros {self.invalid_numbers[0]} " +
                                   "a un nom invalide.")
+            output_file.write(" " + self.comment)
         output_file.close()
 
 
@@ -135,6 +137,7 @@ if __name__ == '__main__':
         if len(team_folder_to_verify.invalid_numbers) > 0:
             print(f"Numéros invalides: {team_folder_to_verify.invalid_numbers}")
             team_folder_to_verify.penalty = ask_grade("Quelle pénalité donner à l'équipe? Ne pas mettre de -.")
+            team_folder_to_verify.comment = input("Quel est votre commentaire par rapport à la pénalité? : ")
         else:
             print("Tous les numéros qui ont été faits sont valides!")
         team_folder_to_verify.to_text_file(team_folder / penalty_filename)
