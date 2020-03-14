@@ -6,6 +6,7 @@ def count_number_of_exercises_yet_to_correct():
     nbr_of_exercises_yet_to_correct = 0
     for team_folder in sorted(teams_path.glob("Equipe *"),
                               key=lambda x: int(str(x.name).split(' ')[-1])):
+        print(str(team_folder))
         for exercise_number in range(1, number_of_exercises + 1):
             correction_file_path = Path(team_folder / f"correction{exercise_number}.txt")
             if not correction_file_path.exists():
