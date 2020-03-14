@@ -1,9 +1,8 @@
+from correction import NumberGrading, ask_yesno, ask_grade, open_in_default_application
 from pathlib import Path
 
 import re
 import sys
-
-from correction import NumberGrading, ask_yesno, ask_grade, open_in_default_application
 
 
 class PathVerification:
@@ -34,14 +33,6 @@ class PathVerification:
                 output_file.write(f"le fichier du numéros {self.invalid_numbers[0]} " +
                                   "a un nom invalide.")
         output_file.close()
-
-
-if len(sys.argv) != 3:
-    print("Utilisation: python3 verification_arborescence.py nombre_de_numero dossier_equipes")
-
-number_of_exercises_in_TP = int(sys.argv[1])
-teams_path = Path(sys.argv[2])
-penalty_filename = "penalite_globale.txt"
 
 
 def is_present(exercise_number_to_verify, folder):
@@ -97,40 +88,48 @@ def mark_zero_for_an_exercise_not_done(number_of_the_exercise_not_done):
     mark_of_the_exercise.to_text_file(team_folder / f"correction{number_of_the_exercise_not_done}.txt")
 
 
-for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(str(x.name).split(' ')[-1])):
-    team_folder_to_verify = PathVerification()
-    team_folder_to_verify.team_number = team_folder.name.split(" ")[-1]
+if __name__ == '__main__':
+    if len(sys.argv) != 4:
+        print("Utilisation: python3 verification_arborescence.py nombre_de_numero dossier_equipes")
 
-    if Path(team_folder / f"penalite_globale.txt").exists():
-        print(f"Verification pour l'équipe {team_folder_to_verify.team_number} " +
-              "déjà faite, on passe à la suivante.")
-        continue
+    number_of_exercises_in_TP = int(sys.argv[1])
+    teams_path = Path(sys.argv[2])
+    penalty_filename = "penalite_globale.txt"
 
-    print("========================================")
-    print(f"--- Verification de l'équipe {team_folder_to_verify.team_number} ---")
+    for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(str(x.name).split(' ')[-1])):
+        team_folder_to_verify = PathVerification()
+        team_folder_to_verify.team_number = team_folder.name.split(" ")[-1]
 
-    # First pass, find problems
-    team_folder_to_verify.invalid_numbers.extend(find_problematic_exercises(team_folder))
-
-    if len(team_folder_to_verify.invalid_numbers) > 0:
-        open_in_default_application(team_folder)
-
-        if not ask_yesno("Anomalies corrigées? O: Elles ont été corrigées, les numéros non-faits vont avoir 0; "
-                         "N: Non, je veux sauter cette équipe", True):
+        if Path(team_folder / f"penalite_globale.txt").exists():
+            print(f"Verification pour l'équipe {team_folder_to_verify.team_number} " +
+                  "déjà faite, on passe à la suivante.")
             continue
 
-    # Second pass, find actual missing numbers
-    for number in range(1, number_of_exercises_in_TP + 1):
-        files_for_number = list(team_folder.glob(f"**/*{number}.pdf")) + \
-                           list(team_folder.glob(f"**/*{number}.PDF")) + \
-                           list(team_folder.glob(f"**/*{number}_retard.pdf")) + \
-                           list(team_folder.glob(f"**/*{number}_retard.PDF"))
-        if len(files_for_number) == 0:
-            mark_zero_for_an_exercise_not_done(number)
+        print("========================================")
+        print(f"--- Verification de l'équipe {team_folder_to_verify.team_number} ---")
 
-    if len(team_folder_to_verify.invalid_numbers) > 0:
-        print(f"Numéros invalides: {team_folder_to_verify.invalid_numbers}")
-        team_folder_to_verify.penalty = ask_grade("Quelle pénalité donner à l'équipe? Ne pas mettre de -.")
-    else:
-        print("Tous les numéros qui ont été faits sont valides!")
-    team_folder_to_verify.to_text_file(team_folder / penalty_filename)
+        # First pass, find problems
+        team_folder_to_verify.invalid_numbers.extend(find_problematic_exercises(team_folder))
+
+        if len(team_folder_to_verify.invalid_numbers) > 0:
+            open_in_default_application(team_folder)
+
+            if not ask_yesno("Anomalies corrigées? O: Elles ont été corrigées, les numéros non-faits vont avoir 0; "
+                             "N: Non, je veux sauter cette équipe", True):
+                continue
+
+        # Second pass, find actual missing numbers
+        for number in range(1, number_of_exercises_in_TP + 1):
+            files_for_number = list(team_folder.glob(f"**/*{number}.pdf")) + \
+                               list(team_folder.glob(f"**/*{number}.PDF")) + \
+                               list(team_folder.glob(f"**/*{number}_retard.pdf")) + \
+                               list(team_folder.glob(f"**/*{number}_retard.PDF"))
+            if len(files_for_number) == 0:
+                mark_zero_for_an_exercise_not_done(number)
+
+        if len(team_folder_to_verify.invalid_numbers) > 0:
+            print(f"Numéros invalides: {team_folder_to_verify.invalid_numbers}")
+            team_folder_to_verify.penalty = ask_grade("Quelle pénalité donner à l'équipe? Ne pas mettre de -.")
+        else:
+            print("Tous les numéros qui ont été faits sont valides!")
+        team_folder_to_verify.to_text_file(team_folder / penalty_filename)

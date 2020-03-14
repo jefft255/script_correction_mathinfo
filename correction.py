@@ -102,8 +102,8 @@ def correction_choices(correction, number, default):
 
 
 if __name__ == "__main__":
-    if len(sys.argv[1]) != 3:
-        print("Mauvais nombre d'argument. Utilisation: python correction.py numéro note_maximale dossier_équipes")
+    if len(sys.argv[1]) != 4:
+        print("Utilisation: python correction.py numéro note_maximale dossier_équipes")
 
     number = sys.argv[1]
     max_grade = sys.argv[2]
