@@ -6,13 +6,24 @@ def count_number_of_exercises_yet_to_correct():
     nbr_of_exercises_yet_to_correct = 0
     for team_folder in sorted(teams_path.glob("Equipe *"),
                               key=lambda x: int(str(x.name).split(' ')[-1])):
-        print(str(team_folder))
-        for exercise_number in range(1, number_of_exercises + 1):
-            correction_file_path = Path(team_folder / f"correction{exercise_number}.txt")
-            if not correction_file_path.exists():
-                print(f"Le fichier {correction_file_path} est introuvable.")
-                nbr_of_exercises_yet_to_correct += 1
+        numbers_of_exercises_yet_to_correct = collect_numbers_of_exercises_yet_to_correct_for_a_team(team_folder)
+        nbr_of_exercises_yet_to_correct += len(numbers_of_exercises_yet_to_correct)
+        print_correction_message_for_a_team(numbers_of_exercises_yet_to_correct, team_folder.name.split(' ')[1])
     return nbr_of_exercises_yet_to_correct
+
+
+def collect_numbers_of_exercises_yet_to_correct_for_a_team(team_folder):
+    numbers_not_corrected_of_the_team = []
+    for exercise_number in range(1, number_of_exercises + 1):
+        if not Path(team_folder / f"correction{exercise_number}.txt").exists():
+            numbers_not_corrected_of_the_team.append(exercise_number)
+    return numbers_not_corrected_of_the_team
+
+
+def print_correction_message_for_a_team(numbers_of_exercises_yet_to_correct_of_a_team, team_number):
+    if numbers_of_exercises_yet_to_correct_of_a_team:
+        print(f"Il manque la correction des numéros "
+              f"{', '.join(map(str, numbers_of_exercises_yet_to_correct_of_a_team))} de l'équipe {team_number}.")
 
 
 def assert_number_of_arguments():
