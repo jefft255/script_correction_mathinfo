@@ -5,9 +5,9 @@ import sys
 
 
 class NumberGrading:
-    def __init__(self):
-        self.team_number = -1
-        self.number = -1
+    def __init__(self, team_number, number):
+        self.team_number = team_number
+        self.number = number
         self.grade = -1
         self.typo_penalty = 0
         self.readability_penalty = 0
