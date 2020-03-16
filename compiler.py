@@ -58,7 +58,7 @@ def print_collecting_end(team_number):
 
 def collect_result_for_a_team(team_nb, nb_ex, team_dir):
     result = Result(team_nb)
-    collect_global_penalty_for_a_team(team_nb, team_dir, result)
+    result.global_penalty += collect_global_penalty_for_a_team(team_nb, team_dir)
     for nb in range(1, nb_ex + 1):
         path = Path(team_dir / f"correction{nb}.txt")
         try:
@@ -72,28 +72,26 @@ def collect_result_for_a_team(team_nb, nb_ex, team_dir):
     return result
 
 
-def collect_global_penalty_for_a_team(team_nb, team_folder, result):
+def collect_global_penalty_for_a_team(team_nb, team_folder):
     path = Path(team_folder / "penalite_globale.txt")
     try:
         penalty_file = open(path, encoding='utf-8')
-        add_global_penalty_to_a_result(penalty_file, result)
+        global_penalty = collect_global_penalty_from_a_file(penalty_file.read())
         penalty_file.close()
+        return global_penalty
     except Exception:
         raise Exception("Le fichier de pénalité globale de l'équipe " + str(team_nb)
                         + " est manquant ou son encodage est invalide. Veuillez corriger ce problème et "
                         + "relancez le script.")
 
 
-def add_global_penalty_to_a_result(penalty_file, result):
-    penalty_text = penalty_file.read().split(" ")
-    penalty = -1
-    try:
-        data_index = 1
-        penalty = float(penalty_text[data_index])
-    except ValueError:
-        penalty = 0
-    finally:
-        result.global_penalty = penalty
+def collect_global_penalty_from_a_file(penalty_file):
+    penalty_text = penalty_file.split(" ")
+    penalty = 0
+    data_index = 1
+    if len(penalty_text) > 1 and penalty_text[data_index].isnumeric():
+        penalty = int(penalty_text[data_index])
+    return penalty
 
 
 def collect_result_from_file_with_unix_encoding(path, number, result):
