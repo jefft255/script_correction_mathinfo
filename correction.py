@@ -66,8 +66,7 @@ if __name__ == "__main__":
     max_grade = sys.argv[2]
     teams_path = Path(sys.argv[3])
 
-    for team_folder in sorted(teams_path.glob("Equipe *"),
-                              key=lambda x: int(str(x.name).split(' ')[-1])):
+    for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(x.name.split(' ')[-1])):
         team_number = team_folder.name.split(" ")[-1]
         correction = NumberGrading()
         correction.team_number = team_number

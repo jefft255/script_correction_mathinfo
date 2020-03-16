@@ -39,8 +39,7 @@ class Result:
 def collect_results_for_all_teams(nb_of_exercises, input_path):
     list_of_results = []
     team_number_index = -1
-    for team_folder in sorted(input_path.glob("Equipe *"),
-                              key=lambda x: int(str(x.name).split(' ')[team_number_index])):
+    for team_folder in sorted(input_path.glob("Equipe *"), key=lambda x: int(x.name.split(' ')[team_number_index])):
         team_number = team_folder.name.split(" ")[team_number_index]
         print_collecting_start(team_number)
         list_of_results.append(collect_result_for_a_team(team_number, nb_of_exercises, team_folder))
@@ -60,7 +59,7 @@ def print_collecting_end(team_number):
 
 def collect_result_for_a_team(team_nb, nb_ex, team_dir):
     result = Result(team_nb)
-    result.global_penalty += collect_global_penalty_for_a_team(team_nb, team_dir)
+    result.global_penalty += collect_global_penalty_for_a_team(team_dir)
     for nb in range(1, nb_ex + 1):
         path = Path(team_dir / f"correction{nb}.txt")
         try:
@@ -74,7 +73,7 @@ def collect_result_for_a_team(team_nb, nb_ex, team_dir):
     return result
 
 
-def collect_global_penalty_for_a_team(team_nb, team_folder):
+def collect_global_penalty_for_a_team(team_folder):
     path = Path(team_folder / "penalite_globale.txt")
     try:
         penalty_file = open(path, encoding='utf-8')
@@ -82,6 +81,8 @@ def collect_global_penalty_for_a_team(team_nb, team_folder):
         penalty_file.close()
         return global_penalty
     except Exception:
+        team_number_index = -1
+        team_nb = team_folder.name.split(" ")[team_number_index]
         raise Exception("Le fichier de pénalité globale de l'équipe " + str(team_nb)
                         + " est manquant ou son encodage est invalide. Veuillez corriger ce problème et "
                         + "relancez le script.")

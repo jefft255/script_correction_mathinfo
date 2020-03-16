@@ -4,8 +4,7 @@ import sys
 
 def count_number_of_exercises_yet_to_correct():
     nbr_of_exercises_yet_to_correct = 0
-    for team_folder in sorted(teams_path.glob("Equipe *"),
-                              key=lambda x: int(str(x.name).split(' ')[-1])):
+    for team_folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(x.name.split(' ')[-1])):
         numbers_of_exercises_yet_to_correct = collect_numbers_of_exercises_yet_to_correct_for_a_team(team_folder)
         nbr_of_exercises_yet_to_correct += len(numbers_of_exercises_yet_to_correct)
         print_correction_message_for_a_team(numbers_of_exercises_yet_to_correct, team_folder.name.split(' ')[1])

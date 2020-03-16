@@ -143,6 +143,5 @@ if __name__ == '__main__':
     assert_number_of_arguments()
     number_of_exercises_in_TP = int(sys.argv[1])
     teams_path = Path(sys.argv[2])
-    for folder in sorted(teams_path.glob("Equipe *"),
-                         key=lambda x: int(str(x.name).split(' ')[TEAM_NUMBER_INDEX])):
+    for folder in sorted(teams_path.glob("Equipe *"), key=lambda x: int(x.name.split(' ')[TEAM_NUMBER_INDEX])):
         verify_naming_of_files_for_a_team(folder, number_of_exercises_in_TP)
