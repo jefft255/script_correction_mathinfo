@@ -1,4 +1,4 @@
-from correction import NumberGrading, ask_yesno, ask_grade, open_in_default_application
+from utilitaires import NumberGrading, ask_grade, open_in_default_application
 from pathlib import Path
 
 import re
@@ -78,7 +78,7 @@ def find_problematic_exercises(folder):
 
 
 def mark_zero_for_an_exercise_not_done(number_of_the_exercise_not_done):
-    print(f"Le numéro {number_of_the_exercise_not_done} n'a pas été fait, c'est donc 0.")
+    print(f"AVERTISSEMENT: le numéro {number_of_the_exercise_not_done} n'a pas été fait, c'est donc 0.")
     mark_of_the_exercise = NumberGrading()
     mark_of_the_exercise.team_number = team_folder_to_verify.team_number
     mark_of_the_exercise.number = number_of_the_exercise_not_done
@@ -93,11 +93,11 @@ def assert_number_of_arguments():
 
 
 def is_team_skipped():
-    answer = input("Anomalies corrigées?\nO: Oui, elles sont corrigées. Les numéros non-faits vont avoir 0."
+    answer = input("\nAnomalies corrigées?\nO: Oui, elles sont corrigées. Les numéros non-faits vont avoir 0."
                    "\nX: Sauter cette équipe.\nVotre choix (défaut: oui): ")
-    skipped = True
+    skipped = False
     if answer.strip().lower() == "x":
-        skipped = False
+        skipped = True
     return skipped
 
 
