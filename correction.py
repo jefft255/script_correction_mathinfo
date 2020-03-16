@@ -42,7 +42,7 @@ def correct_a_number(team_nb, nb, default):
 
 
 def print_correction_choices(default):
-    print(f"Entrez la note (défaut: {default}) ou")
+    print(f"\nEntrez la note (défaut: {default}) ou")
     print("autres choix: F -> entrer les fautes de français")
     print("              L -> pénalité de lisibilité")
     print("              P -> autre pénalité")
