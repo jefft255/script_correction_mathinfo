@@ -25,20 +25,17 @@ class NumberGrading:
         output_file.close()
 
 
-def ask_grade(message: str, default=""):
-    while True:
-        answer = input(f"{message} {f'(défaut: {default})' if default != '' else ''}: ")
-        if answer == "":
-            return default
+def ask_grade(message: str, default=0):
+    grade = -1
+    while grade == -1:
+        answer = input(f"{message} (défaut: {default}): ")
+        if answer.isnumeric():
+            grade = int(answer)
+        elif not answer:
+            grade = default
         else:
-            try:
-                answer = int(answer)
-                assert(answer >= 0)
-                return answer
-            except ValueError:
-                print("Note invalide, veuillez réessayer.")
-            except AssertionError:
-                print("La note ou la pénalité doit être positive.")
+            print("Erreur: votre réponse doit être un nombre positif.")
+    return grade
 
 
 def open_in_default_application(path: Path):
