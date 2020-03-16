@@ -38,8 +38,10 @@ class Result:
 
 def collect_results_for_all_teams(nb_of_exercises, input_path):
     list_of_results = []
-    for team_folder in sorted(input_path.glob("Equipe *"), key=lambda x: int(str(x.name).split(' ')[-1])):
-        team_number = team_folder.name.split(" ")[-1]
+    team_number_index = -1
+    for team_folder in sorted(input_path.glob("Equipe *"),
+                              key=lambda x: int(str(x.name).split(' ')[team_number_index])):
+        team_number = team_folder.name.split(" ")[team_number_index]
         print_collecting_start(team_number)
         list_of_results.append(collect_result_for_a_team(team_number, nb_of_exercises, team_folder))
         print_collecting_end(team_number)
