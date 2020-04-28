@@ -80,8 +80,8 @@ def find_problematic_exercises(team_folder):
 
 def mark_zero_for_an_exercise_not_done(number_of_the_exercise_not_done, team_folder):
     print(f"AVERTISSEMENT: le numéro {number_of_the_exercise_not_done} n'a pas été fait, c'est donc 0.")
-    mark_of_the_exercise = NumberGrading(team_folder.name.split(" ")[TEAM_NUMBER_INDEX],
-                                         number_of_the_exercise_not_done)
+    team_number = team_folder.name.split(" ")[TEAM_NUMBER_INDEX]
+    mark_of_the_exercise = NumberGrading(team_number, number_of_the_exercise_not_done)
     mark_of_the_exercise.grade = 0
     mark_of_the_exercise.other_comment = "Numéro pas fait."
     mark_of_the_exercise.to_text_file(team_folder / f"correction{number_of_the_exercise_not_done}.txt")
