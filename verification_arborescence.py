@@ -5,7 +5,7 @@ import re
 import sys
 
 
-PENALITY_FILENAME = "penalite_globale.txt"
+PENALTY_FILENAME = "penalite_globale.txt"
 TEAM_NUMBER_INDEX = -1
 
 
@@ -80,9 +80,8 @@ def find_problematic_exercises(team_folder):
 
 def mark_zero_for_an_exercise_not_done(number_of_the_exercise_not_done, team_folder):
     print(f"AVERTISSEMENT: le numéro {number_of_the_exercise_not_done} n'a pas été fait, c'est donc 0.")
-    mark_of_the_exercise = NumberGrading()
-    mark_of_the_exercise.team_number = team_folder.name.split(" ")[TEAM_NUMBER_INDEX]
-    mark_of_the_exercise.number = number_of_the_exercise_not_done
+    mark_of_the_exercise = NumberGrading(team_folder.name.split(" ")[TEAM_NUMBER_INDEX],
+                                         number_of_the_exercise_not_done)
     mark_of_the_exercise.grade = 0
     mark_of_the_exercise.other_comment = "Numéro pas fait."
     mark_of_the_exercise.to_text_file(team_folder / f"correction{number_of_the_exercise_not_done}.txt")
@@ -104,7 +103,9 @@ def is_team_skipped():
 
 def verify_naming_of_files_for_a_team(team_folder, nb_of_exercises):
     team_number = team_folder.name.split(" ")[TEAM_NUMBER_INDEX]
-    if Path(team_folder / f"{PENALITY_FILENAME}").exists():
+    if team_number == 26:
+        print("yolo")
+    if Path(team_folder / f"{PENALTY_FILENAME}").exists():
         print(f"Vérification pour l'équipe {team_number} déjà faite, on passe à la suivante.")
     else:
         print(f"========================================\n--- Vérification de l'équipe {team_number} ---")
@@ -125,7 +126,7 @@ def treat_invalid_numbers(invalid_numbers, nb_of_exercises, team_folder):
             print(f"Numéros invalides: {invalid_numbers}")
             verified_data.penalty = ask_grade("Quelle pénalité donner à l'équipe? Ne pas mettre de -.")
             verified_data.comment = input("Quel est votre commentaire par rapport à la pénalité? : ")
-        verified_data.to_text_file(team_folder / PENALITY_FILENAME)
+        verified_data.to_text_file(team_folder / PENALTY_FILENAME)
 
 
 def mark_zero_to_all_invalid_numbers(nb_of_exercises, team_folder):
