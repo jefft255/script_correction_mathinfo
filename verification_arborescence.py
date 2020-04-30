@@ -103,30 +103,24 @@ def is_team_skipped():
 
 def verify_naming_of_files_for_a_team(team_folder, nb_of_exercises):
     team_number = team_folder.name.split(" ")[TEAM_NUMBER_INDEX]
-    if team_number == 26:
-        print("yolo")
     if Path(team_folder / f"{PENALTY_FILENAME}").exists():
         print(f"Vérification pour l'équipe {team_number} déjà faite, on passe à la suivante.")
     else:
         print(f"========================================\n--- Vérification de l'équipe {team_number} ---")
         invalid_numbers = find_problematic_exercises(team_folder)
-        if len(invalid_numbers) == 0:
-            print("Tous les numéros qui ont été faits sont valides!")
-        else:
-            treat_invalid_numbers(invalid_numbers, nb_of_exercises, team_folder)
-
-
-def treat_invalid_numbers(invalid_numbers, nb_of_exercises, team_folder):
-    open_in_default_application(team_folder)
-    if not is_team_skipped():
-        mark_zero_to_all_invalid_numbers(nb_of_exercises, team_folder)
-        team_number = team_folder.name.split(" ")[TEAM_NUMBER_INDEX]
         verified_data = PathVerification(team_number, invalid_numbers)
         if len(invalid_numbers) > 0:
+            mark_invalid_numbers(nb_of_exercises, team_folder)
             print(f"Numéros invalides: {invalid_numbers}")
             verified_data.penalty = ask_grade("Quelle pénalité donner à l'équipe? Ne pas mettre de -.")
             verified_data.comment = input("Quel est votre commentaire par rapport à la pénalité? : ")
         verified_data.to_text_file(team_folder / PENALTY_FILENAME)
+
+
+def mark_invalid_numbers(nb_of_exercises, team_folder):
+    open_in_default_application(team_folder)
+    if not is_team_skipped():
+        mark_zero_to_all_invalid_numbers(nb_of_exercises, team_folder)
 
 
 def mark_zero_to_all_invalid_numbers(nb_of_exercises, team_folder):
